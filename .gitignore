@@ -1,0 +1,21 @@
+##
+# IDEs, text editors
+*.swp
+*.sublime*
+.idea
+*.iml
+.DS_Store
+.project
+/.settings
+
+
+
+
+##
+# Build, etc
+/.venv
+/.vagrant
+/*.log
+*.retry
+/ansible/vendor
+/ansible/roles/*/.vagrant.yml

@@ -1,0 +1,10 @@
+---
+
+# - src: ansible-city.aws_bootstrap
+#   version: v1.0
+
+- src: sansible.nginx
+  version: v1.1
+
+- src: sansible.users_and_groups
+  version: v1.3

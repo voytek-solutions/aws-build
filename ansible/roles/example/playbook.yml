@@ -1,0 +1,7 @@
+---
+
+- name: Example application role
+  hosts: "{{ hosts }}"
+
+  roles:
+    - role: example

@@ -1,0 +1,7 @@
+---
+
+example:
+  name: example
+  port: 80
+  files:
+    - index.html

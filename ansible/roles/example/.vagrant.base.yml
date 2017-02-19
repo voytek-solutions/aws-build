@@ -1,0 +1,7 @@
+---
+
+vm:
+  cores: 1
+  memory: 1024
+
+example: { }

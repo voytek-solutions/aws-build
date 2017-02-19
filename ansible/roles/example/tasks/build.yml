@@ -1,0 +1,41 @@
+---
+
+- name: Prepare web folder
+  become: yes
+  file:
+    path: "/home/{{ example.name }}/{{ item.name }}"
+    state: directory
+    mode: "{{ item.mode }}"
+    owner: "{{ example.name }}"
+    group: "{{ example.name }}"
+  with_items:
+    - name: www
+      mode: "0777"
+    - name: logs
+      mode: "0777"
+
+- name: Ensures nginx can access service folder
+  become: yes
+  command: "addgroup www-data {{ example.name }}"
+
+- name: Copy files
+  become: yes
+  copy:
+    src: "{{ item }}"
+    dest: "/home/{{ example.name }}/www/{{ item }}"
+    owner: "{{ example.name }}"
+    group: "{{ example.name }}"
+  with_items: "{{ example.files }}"
+
+- name: Ensure nginx config
+  become: yes
+  template:
+    src: "nginx/{{ item.name }}.j2"
+    dest: /etc/nginx/{{ item.dst }}/{{ example.name }}_{{ item.name }}
+  with_items:
+    - name: server
+      dst: includes/
+    - name: site
+      dst: sites-enabled/
+  notify:
+    - reload nginx

@@ -1,0 +1,19 @@
+##
+# {{ ansible_managed }}
+#
+
+root /home/{{ example.name }}/www;
+
+access_log /home/{{ example.name }}/logs/access.log combined;
+error_log /home/{{ example.name }}/logs/error.log;
+
+client_max_body_size 8m;
+
+location /healthcheck {
+	add_header Content-Type application/json;
+	return 200 '{"status": "OK"}';
+}
+
+location / {
+	root /home/{{ example.name }}/www/;
+}

@@ -1,0 +1,6 @@
+---
+
+example:
+  priv_ip: 192.168.0.21
+  hosts:
+    - example.web.int

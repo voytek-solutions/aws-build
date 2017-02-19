@@ -1,0 +1,11 @@
+##
+# {{ ansible_managed }}
+#
+
+# The Site
+server {
+	listen {{ example.port }};
+	server_name {{ example.name }} localhost;
+
+	include includes/{{ example.name }}_server;
+}
