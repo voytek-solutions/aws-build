@@ -13,9 +13,11 @@
 
 ##
 # Build, etc
-/.venv
 /.vagrant
+/.venv
+/.make
 /*.log
-*.retry
 /ansible/vendor
 /ansible/roles/*/.vagrant.yml
+/vendor
+*.retry

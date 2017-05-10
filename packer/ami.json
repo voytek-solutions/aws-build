@@ -1,0 +1,75 @@
+{
+	"variables": {
+		"application_version": "",
+		"aws_instance_type": "",
+		"aws_region": "",
+		"aws_subnet_id": "",
+		"aws_vpc_id": "",
+		"base_ami_id": "",
+		"base_image_version": "",
+		"build_name": "",
+		"build_repo_version": "",
+		"pwd": "",
+		"role": "",
+		"ssh_username": ""
+	},
+	"builders": [ {
+		"ami_name": "{{ user `role` }}-{{ user `application_version` }}-{{ user `build_name` }}",
+		"ami_users": [ "418855399648" ],
+		"associate_public_ip_address": true,
+		"force_deregister": true,
+		"instance_type": "{{ user `aws_instance_type` }}",
+		"region": "{{ user `aws_region` }}",
+		"source_ami": "{{ user `base_ami_id` }}",
+		"ssh_username": "ubuntu",
+		"subnet_id": "{{ user `aws_subnet_id` }}",
+		"type": "amazon-ebs",
+		"run_tags": {
+			"build_name": "{{ user `build_name` }}",
+			"build_repo_version": "{{ user `build_repo_version` }}",
+			"Name": "builder-{{ user `role` }}-{{ user `application_version` }}-{{ user `build_name` }}",
+			"Role": "{{ user `role` }}",
+			"version": "{{ user `application_version` }}"
+		},
+		"tags": {
+			"base-image-version": "{{ user `base_image_version` }}",
+			"build_name": "{{ user `build_name` }}",
+			"build-repo-version": "{{ user `build_repo_version` }}",
+			"Name": "{{ user `role` }}-{{ user `application_version` }}-{{ user `build_name` }}",
+			"Role": "{{ user `role` }}",
+			"version": "{{ user `application_version` }}"
+		},
+		"vpc_id": "{{ user `aws_vpc_id` }}"
+	} ],
+	"provisioners": [
+		{
+			"execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+			"script": "packer/ami/scripts/preprovision.sh",
+			"type": "shell"
+		},
+		{
+			"playbook_file": "./ansible/playbooks/build.yml",
+			"type": "ansible",
+			"user": "ubuntu",
+			"ansible_env_vars": [
+				"ANSIBLE_CONFIG={{ user `pwd` }}/ansible/ansible.cfg",
+				"PYTHONUNBUFFERED=1"
+			],
+			"extra_arguments": [
+				"--extra-vars", "role={{ user `role` }} pwd={{ user `pwd` }} hosts=all",
+				"--tags", "build"
+			]
+		}
+	],
+	"post-processors": [
+		{
+			"type": "manifest",
+			"output": "manifest.json",
+			"strip_path": true
+		},
+		{
+			"type": "shell-local",
+			"inline": [ "packer_manifest_to_build_yml manifest.json" ]
+		}
+	]
+}

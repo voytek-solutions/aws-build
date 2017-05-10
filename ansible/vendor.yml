@@ -1,7 +1,7 @@
 ---
 
-# - src: ansible-city.aws_bootstrap
-#   version: v1.0
+- src: ansible-city.aws_bootstrap
+  version: v1.0
 
 - src: sansible.nginx
   version: v1.1

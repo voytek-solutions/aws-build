@@ -1,7 +1,6 @@
-ansible==2.2.0.0
+ansible==2.2
 ansible-lint==3.4.10
 awscli==1.11.29
-boto==2.45.0
 boto3==1.4.2
 shyaml==0.4.2
 netaddr==0.7.19

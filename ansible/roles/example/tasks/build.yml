@@ -17,6 +17,8 @@
 - name: Ensures nginx can access service folder
   become: yes
   command: "addgroup www-data {{ example.name }}"
+  tags:
+    - skip_ansible_lint # ANSIBLE0012
 
 - name: Copy files
   become: yes

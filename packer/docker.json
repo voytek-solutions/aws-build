@@ -1,0 +1,35 @@
+{
+	"variables": {
+		"aws_account_id": "",
+		"aws_region": "eu-west-1",
+		"pwd": "",
+		"role": "",
+		"version": ""
+	},
+	"builders": [
+		{
+			"export_path": ".artifacts/docker/{{ user `role` }}-{{ user `version` }}.tar",
+			"image": "ubuntu:xenial",
+			"type": "docker"
+		}
+	],
+	"provisioners": [
+		{
+			"execute_command": "bash '{{.Path}}'",
+			"script": "packer/docker/scripts/preprovision.sh",
+			"type": "shell"
+		}
+	],
+	"post-processors": [ [
+		{
+			"repository": "{{ user `aws_account_id` }}.dkr.ecr.{{ user `aws_region` }}.amazonaws.com/{{ user `role` }}",
+			"tag": "{{ user `version` }}",
+			"type": "docker-import"
+		},
+		{
+			"ecr_login": true,
+			"login_server": "https://{{ user `aws_account_id` }}.dkr.ecr.{{ user `aws_region` }}.amazonaws.com/",
+			"type": "docker-push"
+		}
+	] ]
+}

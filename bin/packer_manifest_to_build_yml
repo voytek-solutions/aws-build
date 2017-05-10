@@ -1,0 +1,50 @@
+#!/bin/bash
+
+CMD="$(basename "${BASH_SOURCE[0]}")"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# shellcheck source=./base.sh
+source "${DIR}/base.sh"
+
+function usage {
+	die "Usage: ${CMD} manifest.json"
+}
+
+function main {
+	manifest=$1
+	ami_details=
+	ami_name=
+	ami_version=
+	ami_role=
+	ami_id=
+	last_run_uuid=
+
+	# get the AMI id from the latest build
+	last_run_uuid=$(jq -Mr '.last_run_uuid' "${manifest}")
+	ami_id=$(jq -Mr ".builds[] | select(.packer_run_uuid == \"${last_run_uuid}\") | .artifact_id" "${manifest}" | sed 's/.*://')
+
+	ami_details=$(aws ec2 describe-images \
+		--output text \
+		--image-ids=${ami_id} \
+		--query "Images[*].{\
+			name:Tags[?Key=='Name'].Value[] | [0], \
+			role:Tags[?Key=='Role'].Value[] | [0], \
+			version:Tags[?Key=='version'].Value[] | [0] \
+		}")
+
+	echo "details: ${ami_details}"
+
+	ami_name=$(cut -f1 -d"$(echo -e "\t")" <<< "${ami_details}")
+	ami_role=$(cut -f2 -d"$(echo -e "\t")" <<< "${ami_details}")
+	ami_version=$(cut -f3 -d"$(echo -e "\t")" <<< "${ami_details}")
+
+	echo "---
+${ami_role}:
+  ami:
+    id: ${ami_id}
+    name: ${ami_name}
+  version: ${ami_version}
+" > ${ami_role}.yml
+}
+
+main "$@"
